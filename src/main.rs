@@ -29,6 +29,21 @@ fn main() -> rltk::BError {
     let map = Map::new_map_rooms_and_corridors();
     // place the player in the center of the first room
     let (player_x, player_y) = map.rooms[0].center();
+
+    // skip first room because the player shouldn't have a mob on top of him
+    for room in map.rooms.iter().skip(1) {
+        let (x, y) = room.center();
+        game_state.ecs.create_entity()
+            .with(Position { x, y })
+            .with(Renderable {
+                glyph: rltk::to_cp437('g'),
+                fg: RGB::named(rltk::RED),
+                ..Default::default()
+            })
+            .with(Viewshed { visible_tiles: Vec::new(), range: 8, dirty: true })
+            .build();
+    }
+
     game_state.ecs.insert(map);
 
     let player_entity = game_state.ecs.create_entity()
