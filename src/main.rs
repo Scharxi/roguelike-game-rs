@@ -30,13 +30,25 @@ fn main() -> rltk::BError {
     // place the player in the center of the first room
     let (player_x, player_y) = map.rooms[0].center();
 
+    let mut rng = rltk::RandomNumberGenerator::new();
     // skip first room because the player shouldn't have a mob on top of him
     for room in map.rooms.iter().skip(1) {
         let (x, y) = room.center();
+
+        let glyph: rltk::FontCharType;
+        let roll = rng.roll_dice(1, 2);
+
+        match roll {
+            // goblin
+            1 => { glyph = rltk::to_cp437('g')},
+            // orc
+            _ => {glyph = rltk::to_cp437('o')}
+        }
+
         game_state.ecs.create_entity()
             .with(Position { x, y })
             .with(Renderable {
-                glyph: rltk::to_cp437('g'),
+                glyph,
                 fg: RGB::named(rltk::RED),
                 ..Default::default()
             })
