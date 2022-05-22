@@ -1,7 +1,10 @@
-use rltk::RltkBuilder;
+use rltk::{RGB, RltkBuilder};
+use specs::{Builder, World, WorldExt};
+use crate::components::{Position, Renderable};
 use crate::state::State;
 
 mod state;
+mod components;
 
 fn main() -> rltk::BError {
     use rltk::RltkBuilder;
@@ -10,7 +13,29 @@ fn main() -> rltk::BError {
         .build()?;
 
     // Initialize the game state
-    let game_state = State {};
+    let mut game_state = State { ecs: World::new() };
+
+    // Register Components
+    game_state.ecs.register::<Position>();
+    game_state.ecs.register::<Renderable>();
+
+    let player_entity = game_state.ecs.create_entity()
+        .with(Position { x: 40, y: 25 })
+        .with(Renderable {
+            glyph: rltk::to_cp437('@'),
+            ..Default::default()
+        })
+        .build();
+
+    let enemy_entity = game_state.ecs.create_entity()
+        .with(Position { x: 20, y: 40 })
+        .with(Renderable {
+            glyph: rltk::to_cp437('o'),
+            fg: RGB::named(rltk::RED),
+            ..Default::default()
+        })
+        .build();
+
 
     /*
         Runs the BTerm application, calling into the provided
