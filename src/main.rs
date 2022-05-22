@@ -1,8 +1,9 @@
-use rltk::{RGB, RltkBuilder};
+use rltk::{Point, RGB, RltkBuilder};
 use specs::{Builder, World, WorldExt};
-use crate::components::{Player, Position, Renderable, Viewshed};
+
+use crate::components::{Monster, Name, Player, Position, Renderable, Viewshed};
 use crate::map::{Map, new_map_test};
-use crate::state::State;
+use crate::state::{RunState, State};
 
 mod state;
 mod components;
@@ -18,17 +19,55 @@ fn main() -> rltk::BError {
         .build()?;
 
     // Initialize the game state
-    let mut game_state = State { ecs: World::new() };
+    let mut game_state = State { ecs: World::new(), run_state: RunState::Running };
 
     // Register Components
     game_state.ecs.register::<Position>();
     game_state.ecs.register::<Renderable>();
     game_state.ecs.register::<Player>();
     game_state.ecs.register::<Viewshed>();
+    game_state.ecs.register::<Monster>();
+    game_state.ecs.register::<Name>();
 
     let map = Map::new_map_rooms_and_corridors();
     // place the player in the center of the first room
     let (player_x, player_y) = map.rooms[0].center();
+
+    let mut rng = rltk::RandomNumberGenerator::new();
+    // skip first room because the player shouldn't have a mob on top of him
+    for (i, room) in map.rooms.iter().skip(1).enumerate() {
+        let (x, y) = room.center();
+
+        let glyph: rltk::FontCharType;
+        let roll = rng.roll_dice(1, 2);
+        let name: String;
+
+        match roll {
+            // goblin
+            1 => {
+                glyph = rltk::to_cp437('g');
+                name = "Goblin".to_owned()
+            }
+            // orc
+            _ => {
+                glyph = rltk::to_cp437('o');
+                name = "Orc".to_owned();
+            }
+        }
+
+        game_state.ecs.create_entity()
+            .with(Position { x, y })
+            .with(Renderable {
+                glyph,
+                fg: RGB::named(rltk::RED),
+                ..Default::default()
+            })
+            .with(Viewshed { visible_tiles: Vec::new(), range: 8, dirty: true })
+            .with(Monster {})
+            .with(Name { name: format!("{} #{}", &name, i) })
+            .build();
+    }
+
     game_state.ecs.insert(map);
 
     let player_entity = game_state.ecs.create_entity()
@@ -37,13 +76,16 @@ fn main() -> rltk::BError {
             glyph: rltk::to_cp437('@'),
             ..Default::default()
         })
-        .with(Player{})
+        .with(Player {})
         .with(Viewshed {
             visible_tiles: Vec::new(),
             range: 8,
-            dirty: true
+            dirty: true,
         })
+        .with(Name {name: "Player".to_owned()})
         .build();
+
+    game_state.ecs.insert(Point::new(player_x, player_y));
 
     /*
         Runs the BTerm application, calling into the provided
