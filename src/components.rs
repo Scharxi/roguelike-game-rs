@@ -29,3 +29,9 @@ impl Default for Renderable {
         }
     }
 }
+
+#[derive(Component)]
+pub struct Viewshed {
+    pub visible_tiles : Vec<rltk::Point>,
+    pub range: i32
+}

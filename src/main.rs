@@ -1,6 +1,6 @@
 use rltk::{RGB, RltkBuilder};
 use specs::{Builder, World, WorldExt};
-use crate::components::{Player, Position, Renderable};
+use crate::components::{Player, Position, Renderable, Viewshed};
 use crate::map::{Map, new_map_test};
 use crate::state::State;
 
@@ -9,6 +9,7 @@ mod components;
 mod player;
 mod map;
 mod math;
+mod systems;
 
 fn main() -> rltk::BError {
     use rltk::RltkBuilder;
@@ -23,6 +24,7 @@ fn main() -> rltk::BError {
     game_state.ecs.register::<Position>();
     game_state.ecs.register::<Renderable>();
     game_state.ecs.register::<Player>();
+    game_state.ecs.register::<Viewshed>();
 
     let map = Map::new_map_rooms_and_corridors();
     // place the player in the center of the first room
@@ -35,6 +37,10 @@ fn main() -> rltk::BError {
             ..Default::default()
         })
         .with(Player{})
+        .with(Viewshed {
+            visible_tiles: Vec::new(),
+            range: 8
+        })
         .build();
 
     game_state.ecs.insert(map);
