@@ -1,9 +1,11 @@
 use std::cmp::{max, min};
+
 use rltk::{Algorithm2D, BaseMap, Point, RandomNumberGenerator, RGB, Rltk};
 use specs::{Join, WorldExt};
+
+use crate::{Player, Viewshed, World};
 use crate::math::geometry::Rect;
 use crate::math::xy_idx;
-use crate::{Player, Viewshed, World};
 
 pub const MAX_MAP_WIDTH: i32 = 80;
 pub const MAX_MAP_HEIGHT: i32 = 50;
@@ -22,6 +24,7 @@ pub struct Map {
     pub width: i32,
     pub height: i32,
     pub revealed_tiles: Vec<bool>,
+    pub visible_tiles: Vec<bool>,
 }
 
 impl BaseMap for Map {
@@ -73,6 +76,7 @@ impl Map {
             width: 80,
             height: 50,
             revealed_tiles: vec![false; MAP_SIZE as usize],
+            visible_tiles: vec![false; MAP_SIZE as usize],
         };
 
         const MAX_ROOMS: i32 = 30;
@@ -147,17 +151,24 @@ pub fn draw_map(ecs: &World, ctx: &mut Rltk) {
 
     let mut y = 0;
     let mut x = 0;
-    for (idx, tile) in map.tiles.iter().enumerate() {
+    for (idx,tile) in map.tiles.iter().enumerate() {
         // Render a tile depending upon the tile type
+
         if map.revealed_tiles[idx] {
+            let glyph;
+            let mut fg;
             match tile {
                 TileType::Floor => {
-                    ctx.set(x, y, RGB::from_f32(0.5, 0.5, 0.5), RGB::from_f32(0., 0., 0.), rltk::to_cp437('.'));
+                    glyph = rltk::to_cp437('.');
+                    fg = RGB::from_f32(0.0, 0.5, 0.5);
                 }
                 TileType::Wall => {
-                    ctx.set(x, y, RGB::from_f32(0.0, 1.0, 0.0), RGB::from_f32(0., 0., 0.), rltk::to_cp437('#'));
+                    glyph = rltk::to_cp437('#');
+                    fg = RGB::from_f32(0., 1.0, 0.);
                 }
             }
+            if !map.visible_tiles[idx] { fg = fg.to_greyscale() }
+            ctx.set(x, y, fg, RGB::from_f32(0., 0., 0.), glyph);
         }
 
         // Move the coordinates
