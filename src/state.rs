@@ -22,6 +22,8 @@ impl State {
         vis.run_now(&self.ecs);
         let mut ai = systems::MonsterAI;
         ai.run_now(&self.ecs);
+        let mut indexing = systems::MapIndexingSystem;
+        indexing.run_now(&self.ecs);
         self.ecs.maintain();
     }
 }

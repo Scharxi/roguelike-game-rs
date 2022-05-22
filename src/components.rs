@@ -44,3 +44,6 @@ pub struct Monster;
 pub struct Name {
     pub name: String
 }
+
+#[derive(Debug, Component)]
+pub struct BlocksTile;

@@ -1,7 +1,7 @@
 use rltk::{Point, RGB, RltkBuilder};
 use specs::{Builder, World, WorldExt};
 
-use crate::components::{Monster, Name, Player, Position, Renderable, Viewshed};
+use crate::components::{BlocksTile, Monster, Name, Player, Position, Renderable, Viewshed};
 use crate::map::{Map, new_map_test};
 use crate::state::{RunState, State};
 
@@ -28,6 +28,7 @@ fn main() -> rltk::BError {
     game_state.ecs.register::<Viewshed>();
     game_state.ecs.register::<Monster>();
     game_state.ecs.register::<Name>();
+    game_state.ecs.register::<BlocksTile>();
 
     let map = Map::new_map_rooms_and_corridors();
     // place the player in the center of the first room
@@ -65,6 +66,7 @@ fn main() -> rltk::BError {
             .with(Viewshed { visible_tiles: Vec::new(), range: 8, dirty: true })
             .with(Monster {})
             .with(Name { name: format!("{} #{}", &name, i) })
+            .with(BlocksTile{})
             .build();
     }
 
