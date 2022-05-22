@@ -1,6 +1,7 @@
 use rltk::{Point, RGB, RltkBuilder};
 use specs::{Builder, World, WorldExt};
-use crate::components::{Player, Position, Renderable, Viewshed, Monster};
+
+use crate::components::{Monster, Name, Player, Position, Renderable, Viewshed};
 use crate::map::{Map, new_map_test};
 use crate::state::{RunState, State};
 
@@ -26,6 +27,7 @@ fn main() -> rltk::BError {
     game_state.ecs.register::<Player>();
     game_state.ecs.register::<Viewshed>();
     game_state.ecs.register::<Monster>();
+    game_state.ecs.register::<Name>();
 
     let map = Map::new_map_rooms_and_corridors();
     // place the player in the center of the first room
@@ -33,17 +35,24 @@ fn main() -> rltk::BError {
 
     let mut rng = rltk::RandomNumberGenerator::new();
     // skip first room because the player shouldn't have a mob on top of him
-    for room in map.rooms.iter().skip(1) {
+    for (i, room) in map.rooms.iter().skip(1).enumerate() {
         let (x, y) = room.center();
 
         let glyph: rltk::FontCharType;
         let roll = rng.roll_dice(1, 2);
+        let name: String;
 
         match roll {
             // goblin
-            1 => { glyph = rltk::to_cp437('g')},
+            1 => {
+                glyph = rltk::to_cp437('g');
+                name = "Goblin".to_owned()
+            }
             // orc
-            _ => {glyph = rltk::to_cp437('o')}
+            _ => {
+                glyph = rltk::to_cp437('o');
+                name = "Orc".to_owned();
+            }
         }
 
         game_state.ecs.create_entity()
@@ -54,7 +63,8 @@ fn main() -> rltk::BError {
                 ..Default::default()
             })
             .with(Viewshed { visible_tiles: Vec::new(), range: 8, dirty: true })
-            .with(Monster{})
+            .with(Monster {})
+            .with(Name { name: format!("{} #{}", &name, i) })
             .build();
     }
 
@@ -66,12 +76,13 @@ fn main() -> rltk::BError {
             glyph: rltk::to_cp437('@'),
             ..Default::default()
         })
-        .with(Player{})
+        .with(Player {})
         .with(Viewshed {
             visible_tiles: Vec::new(),
             range: 8,
-            dirty: true
+            dirty: true,
         })
+        .with(Name {name: "Player".to_owned()})
         .build();
 
     game_state.ecs.insert(Point::new(player_x, player_y));
