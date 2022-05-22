@@ -1,7 +1,7 @@
 use rltk::{GameState, Rltk};
-use specs::{Join, World, WorldExt};
+use specs::{Join, RunNow, World, WorldExt};
 
-use crate::{Map, Position, Renderable};
+use crate::{Map, Position, Renderable, systems};
 use crate::map::{draw_map, TileType};
 use crate::player::player_input;
 
@@ -11,6 +11,8 @@ pub struct State {
 
 impl State {
     fn run_systems(&mut self) {
+        let mut vis = systems::VisibilitySystem;
+        vis.run_now(&self.ecs);
         self.ecs.maintain();
     }
 }
@@ -24,7 +26,7 @@ impl GameState for State {
         self.run_systems();
 
         let map = self.ecs.fetch::<Map>();
-        draw_map(&map.tiles, ctx);
+        draw_map(&self.ecs, ctx);
 
         let positions = self.ecs.read_storage::<Position>();
         let renderables = self.ecs.read_storage::<Renderable>();
