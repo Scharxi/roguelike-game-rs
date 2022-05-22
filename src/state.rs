@@ -1,7 +1,7 @@
 use rltk::{GameState, Rltk};
 use specs::{Join, World, WorldExt};
 
-use crate::{Position, Renderable};
+use crate::{Map, Position, Renderable};
 use crate::map::{draw_map, TileType};
 use crate::player::player_input;
 
@@ -23,8 +23,8 @@ impl GameState for State {
         player_input(self, ctx);
         self.run_systems();
 
-        let map = self.ecs.fetch::<Vec<TileType>>();
-        draw_map(&map, ctx);
+        let map = self.ecs.fetch::<Map>();
+        draw_map(&map.tiles, ctx);
 
         let positions = self.ecs.read_storage::<Position>();
         let renderables = self.ecs.read_storage::<Renderable>();

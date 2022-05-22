@@ -1,7 +1,7 @@
 use rltk::{RGB, RltkBuilder};
 use specs::{Builder, World, WorldExt};
 use crate::components::{Player, Position, Renderable};
-use crate::map::{new_map_rooms_and_corridors, new_map_test};
+use crate::map::{Map, new_map_test};
 use crate::state::State;
 
 mod state;
@@ -24,9 +24,9 @@ fn main() -> rltk::BError {
     game_state.ecs.register::<Renderable>();
     game_state.ecs.register::<Player>();
 
-    let (map, rooms) = new_map_rooms_and_corridors();
+    let map = Map::new_map_rooms_and_corridors();
     // place the player in the center of the first room
-    let (player_x, player_y) = rooms[0].center();
+    let (player_x, player_y) = map.rooms[0].center();
 
     let player_entity = game_state.ecs.create_entity()
         .with(Position { x: player_x, y: player_y })
