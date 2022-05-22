@@ -18,7 +18,12 @@ impl<'a> System<'a> for MonsterAI {
         let (mut map,player_pos, mut viewshed, monster, name, mut position) = data;
 
         for (viewshed,_monster, name, pos) in (&mut viewshed, &monster, &name, &mut position).join() {
-            if viewshed.visible_tiles.contains(&*player_pos) {
+            let distance = rltk::DistanceAlg::Pythagoras.distance2d(Point::new(pos.x, pos.y), *player_pos);
+            if distance < 1.5 {
+                console::log(&format!("{} shouts insults", name.name));
+                //wants_to_melee.insert(entity, WantsToMelee{ target: *player_entity }).expect("Unable to insert attack");
+            }
+            else if viewshed.visible_tiles.contains(&*player_pos) {
                 console::log(format!("{} shouts insults", name.name));
                 let path = rltk::a_star_search(
                     xy_idx(pos.x, pos.y) as i32,
