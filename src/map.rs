@@ -1,7 +1,7 @@
 use std::cmp::{max, min};
 
 use rltk::{Algorithm2D, BaseMap, Point, RandomNumberGenerator, RGB, Rltk, SmallVec};
-use specs::{Join, WorldExt};
+use specs::{Entity, Join, WorldExt};
 
 use crate::{Player, Viewshed, World};
 use crate::math::geometry::Rect;
@@ -25,7 +25,8 @@ pub struct Map {
     pub height: i32,
     pub revealed_tiles: Vec<bool>,
     pub visible_tiles: Vec<bool>,
-    pub blocked: Vec<bool>
+    pub blocked: Vec<bool>,
+    pub tiles_content: Vec<Vec<Entity>>,
 }
 
 impl BaseMap for Map {
@@ -113,6 +114,8 @@ impl Map {
             revealed_tiles: vec![false; MAP_SIZE as usize],
             visible_tiles: vec![false; MAP_SIZE as usize],
             blocked: vec![false; MAP_SIZE as usize],
+            tiles_content: vec![Vec::new(); MAP_SIZE as usize]
+
         };
 
         const MAX_ROOMS: i32 = 30;
@@ -156,6 +159,12 @@ impl Map {
     pub fn populate_blocked(&mut self) {
         for (i, tile) in self.tiles.iter_mut().enumerate() {
             self.blocked[i] = *tile == TileType::Wall
+        }
+    }
+
+    pub fn clear_content_index(&mut self) {
+        for content in self.tiles_content.iter_mut() {
+            content.clear();
         }
     }
 }
