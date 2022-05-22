@@ -1,7 +1,7 @@
 use std::cmp::{max, min};
 use rltk::{Rltk, VirtualKeyCode};
 use specs::{Join, WorldExt};
-use crate::{Map, Player, Position, State, Viewshed, World};
+use crate::{Map, Player, Position, RunState, State, Viewshed, World};
 use crate::map::{TileType};
 use crate::math::xy_idx;
 
@@ -25,9 +25,9 @@ pub fn try_move(delta_x: i32, delta_y: i32, ecs: &mut World) {
     }
 }
 
-pub fn player_input(gs: &mut State, ctx: &mut Rltk) {
+pub fn player_input(gs: &mut State, ctx: &mut Rltk) -> RunState {
     match ctx.key {
-        None => {},
+        None => { return RunState::Paused },
         Some(key) => match key {
             VirtualKeyCode::Left | VirtualKeyCode::A => try_move(-1, 0, &mut gs.ecs),
             VirtualKeyCode::Right | VirtualKeyCode::D => try_move(1, 0, &mut gs.ecs),
@@ -36,5 +36,6 @@ pub fn player_input(gs: &mut State, ctx: &mut Rltk) {
             _ => {}
         }
     }
+    RunState::Running
 }
 

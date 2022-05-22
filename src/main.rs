@@ -1,8 +1,8 @@
 use rltk::{RGB, RltkBuilder};
 use specs::{Builder, World, WorldExt};
-use crate::components::{Player, Position, Renderable, Viewshed};
+use crate::components::{Player, Position, Renderable, Viewshed, Monster};
 use crate::map::{Map, new_map_test};
-use crate::state::State;
+use crate::state::{RunState, State};
 
 mod state;
 mod components;
@@ -18,13 +18,14 @@ fn main() -> rltk::BError {
         .build()?;
 
     // Initialize the game state
-    let mut game_state = State { ecs: World::new() };
+    let mut game_state = State { ecs: World::new(), run_state: RunState::Running };
 
     // Register Components
     game_state.ecs.register::<Position>();
     game_state.ecs.register::<Renderable>();
     game_state.ecs.register::<Player>();
     game_state.ecs.register::<Viewshed>();
+    game_state.ecs.register::<Monster>();
 
     let map = Map::new_map_rooms_and_corridors();
     // place the player in the center of the first room
@@ -53,6 +54,7 @@ fn main() -> rltk::BError {
                 ..Default::default()
             })
             .with(Viewshed { visible_tiles: Vec::new(), range: 8, dirty: true })
+            .with(Monster{})
             .build();
     }
 
