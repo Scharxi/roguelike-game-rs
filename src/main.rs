@@ -1,11 +1,13 @@
 use rltk::{RGB, RltkBuilder};
 use specs::{Builder, World, WorldExt};
 use crate::components::{Player, Position, Renderable};
+use crate::map::new_map;
 use crate::state::State;
 
 mod state;
 mod components;
 mod player;
+mod map;
 
 fn main() -> rltk::BError {
     use rltk::RltkBuilder;
@@ -38,6 +40,8 @@ fn main() -> rltk::BError {
             ..Default::default()
         })
         .build();
+
+    game_state.ecs.insert(new_map());
 
 
     /*
