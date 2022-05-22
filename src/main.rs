@@ -1,13 +1,14 @@
 use rltk::{RGB, RltkBuilder};
 use specs::{Builder, World, WorldExt};
 use crate::components::{Player, Position, Renderable};
-use crate::map::new_map;
+use crate::map::{new_map_rooms_and_corridors, new_map_test};
 use crate::state::State;
 
 mod state;
 mod components;
 mod player;
 mod map;
+mod math;
 
 fn main() -> rltk::BError {
     use rltk::RltkBuilder;
@@ -23,8 +24,12 @@ fn main() -> rltk::BError {
     game_state.ecs.register::<Renderable>();
     game_state.ecs.register::<Player>();
 
+    let (map, rooms) = new_map_rooms_and_corridors();
+    // place the player in the center of the first room
+    let (player_x, player_y) = rooms[0].center();
+
     let player_entity = game_state.ecs.create_entity()
-        .with(Position { x: 40, y: 25 })
+        .with(Position { x: player_x, y: player_y })
         .with(Renderable {
             glyph: rltk::to_cp437('@'),
             ..Default::default()
@@ -32,16 +37,7 @@ fn main() -> rltk::BError {
         .with(Player{})
         .build();
 
-    let enemy_entity = game_state.ecs.create_entity()
-        .with(Position { x: 20, y: 40 })
-        .with(Renderable {
-            glyph: rltk::to_cp437('o'),
-            fg: RGB::named(rltk::RED),
-            ..Default::default()
-        })
-        .build();
-
-    game_state.ecs.insert(new_map());
+    game_state.ecs.insert(map);
 
 
     /*

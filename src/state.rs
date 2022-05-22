@@ -9,12 +9,19 @@ pub struct State {
     pub ecs: World,
 }
 
+impl State {
+    fn run_systems(&mut self) {
+        self.ecs.maintain();
+    }
+}
+
 impl GameState for State {
     fn tick(&mut self, ctx: &mut Rltk) {
         // Clears the console
         ctx.cls();
 
         player_input(self, ctx);
+        self.run_systems();
 
         let map = self.ecs.fetch::<Vec<TileType>>();
         draw_map(&map, ctx);

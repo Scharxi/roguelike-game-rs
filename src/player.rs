@@ -2,7 +2,8 @@ use std::cmp::{max, min};
 use rltk::{Rltk, VirtualKeyCode};
 use specs::{Join, WorldExt};
 use crate::{Player, Position, State, World};
-use crate::map::{TileType, xy_idx};
+use crate::map::{TileType};
+use crate::math::xy_idx;
 
 pub fn try_move(delta_x: i32, delta_y: i32, ecs: &mut World) {
     let mut positions = ecs.write_storage::<Position>();
