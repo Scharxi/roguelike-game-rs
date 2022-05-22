@@ -1,4 +1,4 @@
-use rltk::{RGB, RltkBuilder};
+use rltk::{Point, RGB, RltkBuilder};
 use specs::{Builder, World, WorldExt};
 use crate::components::{Player, Position, Renderable, Viewshed, Monster};
 use crate::map::{Map, new_map_test};
@@ -73,6 +73,8 @@ fn main() -> rltk::BError {
             dirty: true
         })
         .build();
+
+    game_state.ecs.insert(Point::new(player_x, player_y));
 
     /*
         Runs the BTerm application, calling into the provided
