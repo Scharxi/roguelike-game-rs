@@ -2,6 +2,7 @@ use rltk::{GameState, Rltk};
 use specs::{Join, World, WorldExt};
 
 use crate::{Position, Renderable};
+use crate::player::player_input;
 
 pub struct State {
     pub ecs: World,
@@ -11,6 +12,8 @@ impl GameState for State {
     fn tick(&mut self, ctx: &mut Rltk) {
         // Clears the console
         ctx.cls();
+
+        player_input(self, ctx);
 
         let positions = self.ecs.read_storage::<Position>();
         let renderables = self.ecs.read_storage::<Renderable>();

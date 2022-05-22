@@ -1,10 +1,11 @@
 use rltk::{RGB, RltkBuilder};
 use specs::{Builder, World, WorldExt};
-use crate::components::{Position, Renderable};
+use crate::components::{Player, Position, Renderable};
 use crate::state::State;
 
 mod state;
 mod components;
+mod player;
 
 fn main() -> rltk::BError {
     use rltk::RltkBuilder;
@@ -18,6 +19,7 @@ fn main() -> rltk::BError {
     // Register Components
     game_state.ecs.register::<Position>();
     game_state.ecs.register::<Renderable>();
+    game_state.ecs.register::<Player>();
 
     let player_entity = game_state.ecs.create_entity()
         .with(Position { x: 40, y: 25 })
@@ -25,6 +27,7 @@ fn main() -> rltk::BError {
             glyph: rltk::to_cp437('@'),
             ..Default::default()
         })
+        .with(Player{})
         .build();
 
     let enemy_entity = game_state.ecs.create_entity()

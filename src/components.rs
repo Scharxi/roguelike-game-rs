@@ -3,6 +3,10 @@ use specs_derive::Component;
 use specs::prelude::*;
 
 
+#[derive(Component, Debug)]
+pub struct Player;
+
+
 #[derive(Component)]
 pub struct Position {
     pub(crate) x: i32,
