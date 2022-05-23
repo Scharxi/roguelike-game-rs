@@ -19,7 +19,7 @@ fn main() -> rltk::BError {
         .build()?;
 
     // Initialize the game state
-    let mut game_state = State { ecs: World::new(), run_state: RunState::Running };
+    let mut game_state = State { ecs: World::new() };
 
     // Register Components
     game_state.ecs.register::<Position>();
@@ -94,7 +94,7 @@ fn main() -> rltk::BError {
     game_state.ecs.insert(map);
     game_state.ecs.insert(Point::new(player_x, player_y));
     game_state.ecs.insert(player_entity);
-    game_state.ecs.insert(RunState::Running);
+    game_state.ecs.insert(RunState::PreRun);
 
     /*
         Runs the BTerm application, calling into the provided
