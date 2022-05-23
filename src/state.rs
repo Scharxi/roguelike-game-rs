@@ -8,12 +8,11 @@ use crate::player::player_input;
 
 #[derive(PartialEq, Copy, Clone)]
 pub enum RunState {
-    Paused, Running
+    AwaitingInput, PreRun, PlayerTurn, MonsterTurn
 }
 
 pub struct State {
     pub ecs: World,
-    pub run_state: RunState,
 }
 
 impl State {
@@ -22,6 +21,12 @@ impl State {
         vis.run_now(&self.ecs);
         let mut ai = systems::MonsterAI;
         ai.run_now(&self.ecs);
+        let mut indexing = systems::MapIndexingSystem;
+        indexing.run_now(&self.ecs);
+        let mut melee = systems::MeleeCombatSystem{};
+        melee.run_now(&self.ecs);
+        let mut damage = systems::DamageSystem{};
+        damage.run_now(&self.ecs);
         self.ecs.maintain();
     }
 }
@@ -30,15 +35,38 @@ impl GameState for State {
     fn tick(&mut self, ctx: &mut Rltk) {
         // Clears the console
         ctx.cls();
+        let mut new_run_state;
 
-        if self.run_state == RunState::Running {
-            self.run_systems();
-            self.run_state = RunState::Paused;
-        } else {
-            self.run_state = player_input(self, ctx);
+        {
+            let run_state = self.ecs.fetch::<RunState>();
+            new_run_state = *run_state;
         }
 
-        let map = self.ecs.fetch::<Map>();
+        match new_run_state {
+            RunState::PreRun => {
+                self.run_systems();
+                new_run_state = RunState::AwaitingInput;
+            }
+            RunState::AwaitingInput => {
+                new_run_state = player_input(self, ctx);
+            }
+            RunState::PlayerTurn => {
+                self.run_systems();
+                new_run_state = RunState::MonsterTurn;
+            }
+            RunState::MonsterTurn => {
+                self.run_systems();
+                new_run_state = RunState::AwaitingInput;
+            }
+        }
+
+        {
+            let mut run_writer = self.ecs.write_resource::<RunState>();
+            *run_writer = new_run_state;
+        }
+
+        systems::delete_the_dead(&mut self.ecs);
+
         draw_map(&self.ecs, ctx);
 
         let positions = self.ecs.read_storage::<Position>();
