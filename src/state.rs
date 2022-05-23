@@ -24,6 +24,10 @@ impl State {
         ai.run_now(&self.ecs);
         let mut indexing = systems::MapIndexingSystem;
         indexing.run_now(&self.ecs);
+        let mut melee = systems::MeleeCombatSystem{};
+        melee.run_now(&self.ecs);
+        let mut damage = systems::DamageSystem{};
+        damage.run_now(&self.ecs);
         self.ecs.maintain();
     }
 }
@@ -40,7 +44,8 @@ impl GameState for State {
             self.run_state = player_input(self, ctx);
         }
 
-        let map = self.ecs.fetch::<Map>();
+        systems::delete_the_dead(&mut self.ecs);
+
         draw_map(&self.ecs, ctx);
 
         let positions = self.ecs.read_storage::<Position>();
